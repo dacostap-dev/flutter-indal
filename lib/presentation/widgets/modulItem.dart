@@ -1,0 +1,108 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:indal/domain/models/Modul.dart';
+
+import 'package:skeleton_text/skeleton_text.dart';
+
+class ModulItem extends ConsumerWidget {
+  final Modul modul;
+
+  const ModulItem({
+    Key? key,
+    required this.modul,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      height: 50,
+      width: 50,
+      decoration: BoxDecoration(
+        color: modul.isCompleted ? Colors.blue.shade400 : Colors.red.shade400,
+        border: Border.all(),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade100,
+          ),
+        ],
+      ),
+      child: Center(child: Text(modul.name)),
+    );
+    return Dismissible(
+      key: ValueKey(modul.id),
+      onDismissed: (direction) => print(modul.id),
+      child: ListTile(
+        title: Text(modul.name),
+        leading: const Icon(
+          Icons.account_circle,
+          size: 32,
+        ),
+      ),
+    );
+  }
+}
+
+class ModulSkeleton extends StatelessWidget {
+  const ModulSkeleton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SkeletonAnimation(
+          shimmerColor: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(20),
+          shimmerDuration: 1000,
+          child: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonAnimation(
+                  shimmerColor: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
+                  shimmerDuration: 1000,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SkeletonAnimation(
+                  shimmerColor: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(50),
+                  shimmerDuration: 1000,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
