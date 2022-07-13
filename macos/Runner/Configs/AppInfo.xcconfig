@@ -8,7 +8,7 @@
 PRODUCT_NAME = indal
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.viru.indal.indal
+PRODUCT_BUNDLE_IDENTIFIER = com.viru.indal;
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2022 com.viru.indal. All rights reserved.

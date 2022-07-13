@@ -3,27 +3,26 @@ import 'package:indal/domain/repository/promotion_repository.dart';
 
 class PromotionLocalImpletation extends PromotionRepository {
   @override
-  Future<Promotion> addPromotion() {
+  Future<Promotion> addPromotion({required String name}) {
     // TODO: implement addPromotion
     throw UnimplementedError();
   }
 
   @override
-  Future<Promotion> deletePromotion() {
+  Future<Promotion> deletePromotion({required String id}) {
     // TODO: implement deletePromotion
     throw UnimplementedError();
   }
 
   @override
-  Future<List<Promotion>> getPromotions() async {
+  Future<List<Promotion>> getPromotions({String? search}) async {
     await Future.delayed(const Duration(seconds: 1));
 
     return List.generate(
       10,
       (index) => Promotion(
         id: index.toString(),
-        name: 'Promotion ${index+1}',
-        userId: index.toString(),
+        name: 'Promotion ${index + 1}',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -31,7 +30,7 @@ class PromotionLocalImpletation extends PromotionRepository {
   }
 
   @override
-  Future<Promotion> updatePromotion() {
+  Future<void> updatePromotion({required String name}) {
     // TODO: implement updatePromotion
     throw UnimplementedError();
   }

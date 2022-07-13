@@ -1,10 +1,19 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:indal/domain/models/Promotion.dart';
 
 import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
 import 'package:indal/presentation/widgets/promotionItem.dart';
+
+enum PromotionQuery {
+  name,
+  createdAt,
+}
+
+final filterProvider = StateProvider((ref) => PromotionQuery.name);
 
 class PromotionPage extends ConsumerStatefulWidget {
   const PromotionPage({Key? key}) : super(key: key);
@@ -28,17 +37,40 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Promociones'),
+        actions: <Widget>[
+          PopupMenuButton<PromotionQuery>(
+              onSelected: (value) async {
+                ref.read(filterProvider.notifier).state = value;
+
+                ref.read(promotionCubit.notifier).getPromotions();
+              },
+              icon: const Icon(Icons.sort),
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem(
+                    value: PromotionQuery.name,
+                    child: Text('Sort by Name'),
+                  ),
+                  const PopupMenuItem(
+                    value: PromotionQuery.createdAt,
+                    child: Text('Sort by CreatedAt'),
+                  ),
+                ];
+              })
+        ],
       ),
       body: Column(
         children: [
-          const SearchPromotion(),
+          //No se puede combinar filtro de busqueda con otro filtro de orden
+          //const SearchPromotion(),
+
           Expanded(
             child: Consumer(
               builder: (context, ref, widget) {
                 final state = ref.watch(promotionCubit);
 
                 if (state is PromotionLoadFailed) {
-                  return const Center(child: Text('Error'));
+                  return Center(child: Text(state.message));
                 }
 
                 if (state is PromotionLoading) {
@@ -103,12 +135,19 @@ class SearchPromotionState extends ConsumerState<SearchPromotion> {
       padding: const EdgeInsets.all(10),
       child: TextField(
         controller: _nameController,
+        keyboardType: TextInputType.text,
         decoration: const InputDecoration(hintText: 'Buscar'),
         onChanged: (String? text) {
           if (_debounce?.isActive ?? false) _debounce?.cancel();
           _debounce = Timer(
             const Duration(milliseconds: 300),
-            (() => print(_nameController.text)),
+            (() async {
+              print(_nameController.text);
+
+              ref.read(searchProvider.notifier).state = _nameController.text;
+
+              ref.read(promotionCubit.notifier).getPromotions();
+            }),
           );
         },
       ),

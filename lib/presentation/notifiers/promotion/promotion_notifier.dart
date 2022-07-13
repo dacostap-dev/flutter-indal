@@ -19,46 +19,40 @@ class PromotionNotifier extends StateNotifier<PromotionState> {
 
   PromotionNotifier(this._promotionRepository) : super(PromotionInitial());
 
-  void getPromotions({String search = ''}) {
+  void getPromotions() {
     state = PromotionLoading();
 
     _promotionRepository
         .getPromotions()
         .then((res) => state = PromotionLoaded(res))
         .catchError((e) {
-      state = PromotionLoadFailed();
+      print(e);
+      state = PromotionLoadFailed(message: e.toString());
     });
   }
 
   void addPromotion(String name) {
     print('addPromotion');
-    final currentState = state;
 
-    if (currentState is PromotionLoaded) {
-      state = PromotionLoaded([
-        ...currentState.promotions,
-        Promotion(
-          id: '123213',
-          name: name,
-          userId: '123123',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-      ]);
-    }
+    _promotionRepository
+        .addPromotion(name: name)
+        .then((value) => state = PromotionAddSuccess())
+        .catchError((e) {
+      print(e);
+      state = PromotionAddFailed(message: e.toString());
+    });
   }
 
   void deletePromotion(Promotion promotion) {
     print('deletePromotion');
-    final currentState = state;
 
-    if (currentState is PromotionLoaded) {
-      state = PromotionLoaded(
-        currentState.promotions
-            .where((element) => element.id != promotion.id)
-            .toList(),
-      );
-    }
+    _promotionRepository
+        .deletePromotion(id: promotion.id)
+        .then((value) => state = PromotionDeleteSuccess())
+        .catchError((e) {
+      print(e);
+      state = PromotionDeleteFailed(message: e.toString());
+    });
   }
 
   void getStudentsByPromotion(String id) {
@@ -68,7 +62,7 @@ class PromotionNotifier extends StateNotifier<PromotionState> {
         .getPromotions()
         .then((res) => state = PromotionLoaded(res))
         .catchError((e) {
-      state = PromotionLoadFailed();
+      state = PromotionLoadFailed(message: e.toString());
     });
   }
 }

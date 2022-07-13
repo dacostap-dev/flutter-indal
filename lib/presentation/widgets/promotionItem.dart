@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:indal/domain/models/Promotion.dart';
 import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
+import 'package:intl/intl.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
 class PromotionItem extends ConsumerWidget {
@@ -14,6 +15,8 @@ class PromotionItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+
     return Dismissible(
       key: ValueKey(promotion.id),
       onDismissed: (direction) =>
@@ -25,12 +28,12 @@ class PromotionItem extends ConsumerWidget {
           arguments: promotion,
         ),
         title: Text(promotion.name),
+        subtitle: Text(dateFormat.format(promotion.createdAt)),
         leading: const Icon(Icons.school),
       ),
     );
   }
 }
-
 
 class PromotionSkeleton extends StatelessWidget {
   const PromotionSkeleton({

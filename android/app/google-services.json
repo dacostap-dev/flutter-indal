@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "682497354056",
+    "project_id": "viru-6fc64",
+    "storage_bucket": "viru-6fc64.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682497354056:android:d5722c7e3e6811fac6ab7d",
+        "android_client_info": {
+          "package_name": "com.viru.indal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682497354056-jl9ens5vt49mbmu45udlk0vqt754k7qh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAStHG76wUd5SJp0GxFFBVro9JLxdqG5ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682497354056-jl9ens5vt49mbmu45udlk0vqt754k7qh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "682497354056-a3mvddhi7brqnsd501eilfcg42l4a7s0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.viru.indal.indal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

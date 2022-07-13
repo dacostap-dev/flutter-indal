@@ -37,6 +37,9 @@ dependencies:
   flutter_riverpod: ^1.0.4
   skeleton_text: ^3.0.0
   flutter_typeahead: ^4.0.0
+  firebase_core: ^1.19.1
+  cloud_firestore: ^3.2.1
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
