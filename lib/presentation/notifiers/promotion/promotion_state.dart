@@ -28,6 +28,16 @@ class PromotionAddFailed extends PromotionState {
   PromotionAddFailed({required this.message});
 }
 
+//UPDATE
+class PromotionUpdatedSuccess extends PromotionState {}
+
+class PromotionUpdateFailed extends PromotionState {
+    final String message;
+
+  PromotionUpdateFailed({required this.message});
+}
+
+
 //DELETE
 class PromotionDeleteSuccess extends PromotionState {}
 

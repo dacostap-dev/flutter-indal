@@ -30,6 +30,55 @@ class PromotionItem extends ConsumerWidget {
         title: Text(promotion.name),
         subtitle: Text(dateFormat.format(promotion.createdAt)),
         leading: const Icon(Icons.school),
+        trailing: SizedBox(
+          width: 100,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => UpdatePromotionDialog(promotion: promotion),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+              ),
+              IconButton(
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Eliminar Promoción'),
+                      titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                      content: Text(
+                        '¿Estás seguro que quieres eliminar la promoción ${promotion.name}?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () => {
+                            ref
+                                .read(promotionCubit.notifier)
+                                .deletePromotion(promotion),
+                            Navigator.pop(context)
+                          },
+                          child: const Text('Aceptar'),
+                        )
+                      ],
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.delete),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -94,6 +143,75 @@ class PromotionSkeleton extends StatelessWidget {
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class UpdatePromotionDialog extends ConsumerStatefulWidget {
+  final Promotion promotion;
+
+  const UpdatePromotionDialog({
+    Key? key,
+    required this.promotion,
+  }) : super(key: key);
+
+  @override
+  UpdatePromotionDialogState createState() => UpdatePromotionDialogState();
+}
+
+class UpdatePromotionDialogState extends ConsumerState<UpdatePromotionDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  late Promotion promotionEdited;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    _nameController.text = widget.promotion.name;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      title: const Text('Editar Promoción'),
+      titleTextStyle: Theme.of(context).textTheme.titleMedium,
+      contentPadding: const EdgeInsets.all(20),
+      children: [
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _nameController,
+            validator: (text) {
+              if (text == '') {
+                return 'Ingrese el nombre de la promocion';
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              promotionEdited = widget.promotion.copyWith(
+                name: _nameController.text,
+              );
+
+              ref
+                  .read(promotionCubit.notifier)
+                  .updatePromotion(promotionEdited);
+
+              Navigator.pop(context);
+            }
+          },
+          child: const Text('Guardar'),
+        )
       ],
     );
   }

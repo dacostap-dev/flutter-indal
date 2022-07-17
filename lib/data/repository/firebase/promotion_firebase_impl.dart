@@ -2,17 +2,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:indal/domain/models/Promotion.dart';
 import 'package:indal/domain/repository/promotion_repository.dart';
-import 'package:indal/presentation/pages/promotions/promotions.dart';
+import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
 import 'package:indal/providers/dependencies_provider.dart';
 
 extension on Query<Promotion> {
   /// Create a firebase query from a [PromotionQuery]
-  Query<Promotion> queryBy(PromotionQuery query) {
+  Query<Promotion> queryBy(PromotionQuery query, Promotion? lastPromotion) {
     switch (query) {
       case PromotionQuery.name:
+        if (lastPromotion != null) {
+          return orderBy('name', descending: true).startAfter([
+            lastPromotion.name,
+          ]);
+        }
         return orderBy('name', descending: true);
 
       case PromotionQuery.createdAt:
+        if (lastPromotion != null) {
+          return orderBy('created_at', descending: true).startAfter([
+            lastPromotion.createdAt,
+          ]);
+        }
         return orderBy('created_at', descending: true);
     }
   }
@@ -33,12 +43,15 @@ class PromotionFirebaseImplentation extends PromotionRepository {
   }
 
   @override
-  Future<List<Promotion>> getPromotions({String? search}) async {
+  Future<List<Promotion>> getPromotions({Promotion? lastPromotion}) async {
     final orderBy = ref.read(filterProvider);
+
+    print(lastPromotion);
 
     return await promotionsRef
         //   .where('name', isGreaterThanOrEqualTo: search)
-        .queryBy(orderBy)
+        .queryBy(orderBy, lastPromotion)
+        .limit(8)
         .get()
         .then((snapshot) {
       return snapshot.docs.map((doc) => doc.data()).toList();
@@ -66,17 +79,13 @@ class PromotionFirebaseImplentation extends PromotionRepository {
 
   @override
   Future<void> deletePromotion({required String id}) async {
-    await ref.read(firebaseProvider).collection('promotions').doc(id).delete();
+    await promotionsRef.doc(id).delete();
   }
 
   @override
-  Future<void> updatePromotion({required String name}) async {
-    return await ref
-        .read(firebaseProvider)
-        .collection('promotions')
-        .doc('ABC123')
-        .update({
-      'name': name,
+  Future<void> updatePromotion({required Promotion promotion}) async {
+    return await promotionsRef.doc(promotion.id).update({
+      'name': promotion.name,
       'updated_at': FieldValue.serverTimestamp(),
     });
   }

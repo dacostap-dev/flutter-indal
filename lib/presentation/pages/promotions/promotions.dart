@@ -1,19 +1,13 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:indal/domain/models/Promotion.dart';
 
 import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
 import 'package:indal/presentation/widgets/promotionItem.dart';
-
-enum PromotionQuery {
-  name,
-  createdAt,
-}
-
-final filterProvider = StateProvider((ref) => PromotionQuery.name);
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class PromotionPage extends ConsumerStatefulWidget {
   const PromotionPage({Key? key}) : super(key: key);
@@ -23,17 +17,36 @@ class PromotionPage extends ConsumerStatefulWidget {
 }
 
 class PromotionPageState extends ConsumerState<PromotionPage> {
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
   @override
   void initState() {
     super.initState();
 
+    print('init');
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(promotionListProvider.notifier).state = [];
       ref.read(promotionCubit.notifier).getPromotions();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<PromotionState>(promotionCubit, (previous, next) {
+      if (next is PromotionLoaded) {
+        _refreshController.loadComplete();
+      }
+
+      if (next is PromotionAddSuccess ||
+          next is PromotionUpdatedSuccess ||
+          next is PromotionDeleteSuccess) {
+        ref.read(promotionListProvider.notifier).state = [];
+        ref.read(promotionCubit.notifier).getPromotions();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Promociones'),
@@ -41,6 +54,7 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
           PopupMenuButton<PromotionQuery>(
               onSelected: (value) async {
                 ref.read(filterProvider.notifier).state = value;
+                ref.read(promotionListProvider.notifier).state = [];
 
                 ref.read(promotionCubit.notifier).getPromotions();
               },
@@ -59,47 +73,65 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
               })
         ],
       ),
-      body: Column(
-        children: [
-          //No se puede combinar filtro de busqueda con otro filtro de orden
-          //const SearchPromotion(),
+      body: Consumer(
+        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+          final state = ref.watch(promotionCubit);
 
-          Expanded(
-            child: Consumer(
-              builder: (context, ref, widget) {
-                final state = ref.watch(promotionCubit);
+          if (state is PromotionLoadFailed) {
+            return const Center(child: Text('Error'));
+          }
 
-                if (state is PromotionLoadFailed) {
-                  return Center(child: Text(state.message));
-                }
-
-                if (state is PromotionLoading) {
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(10),
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
-                    itemCount: 12,
-                    itemBuilder: (context, index) => const PromotionSkeleton(),
+          if (state is PromotionLoaded) {
+            if (state.promotions.isEmpty) {
+              return const Center(child: Text('No hay promociones'));
+            }
+            return SmartRefresher(
+              enablePullUp: true,
+              enablePullDown: false,
+              footer: CustomFooter(
+                builder: (BuildContext context, LoadStatus? mode) {
+                  Widget body;
+                  if (mode == LoadStatus.loading) {
+                    body = const CupertinoActivityIndicator();
+                  } else if (mode == LoadStatus.failed) {
+                    body = const Text("Algo salió mal");
+                  } else if (mode == LoadStatus.canLoading) {
+                    body = const Text("Cargar más promociones");
+                  } else {
+                    body = const Text("No hay más promociones");
+                  }
+                  return SizedBox(
+                    height: 55.0,
+                    child: Center(child: body),
                   );
-                }
-
-                if (state is PromotionLoaded) {
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(10),
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
-                    itemCount: state.promotions.length,
-                    itemBuilder: (context, index) => PromotionItem(
-                      promotion: state.promotions[index],
-                    ),
-                  );
-                }
-
-                return const SizedBox.shrink();
+                },
+              ),
+              controller: _refreshController,
+              // onRefresh: _onRefresh,
+              onLoading: () {
+                ref.read(promotionCubit.notifier).getPromotions(
+                      offset: state.promotions.length,
+                      lastPromotion: state.promotions.last,
+                    );
               },
-            ),
-          ),
-        ],
+              child: ListView.separated(
+                padding: const EdgeInsets.all(10),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                itemCount: state.promotions.length,
+                itemBuilder: (context, index) => PromotionItem(
+                  promotion: state.promotions[index],
+                ),
+              ),
+            );
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(10),
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemCount: 10,
+            itemBuilder: (context, index) => const PromotionSkeleton(),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -171,6 +203,8 @@ class CreatePromotionState extends ConsumerState<CreatePromotion> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
+      title: const Text('Crear Promoción'),
+      titleTextStyle: Theme.of(context).textTheme.titleMedium,
       contentPadding: const EdgeInsets.all(20),
       children: [
         Form(
@@ -184,6 +218,7 @@ class CreatePromotionState extends ConsumerState<CreatePromotion> {
               return null;
             },
             decoration: const InputDecoration(
+              hintText: 'Ingrese la promoción',
               border: UnderlineInputBorder(),
             ),
           ),

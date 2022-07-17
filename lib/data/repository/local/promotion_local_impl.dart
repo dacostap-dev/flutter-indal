@@ -15,7 +15,7 @@ class PromotionLocalImpletation extends PromotionRepository {
   }
 
   @override
-  Future<List<Promotion>> getPromotions({String? search}) async {
+  Future<List<Promotion>> getPromotions({Promotion? lastPromotion}) async {
     await Future.delayed(const Duration(seconds: 1));
 
     return List.generate(
@@ -30,7 +30,7 @@ class PromotionLocalImpletation extends PromotionRepository {
   }
 
   @override
-  Future<void> updatePromotion({required String name}) {
+  Future<void> updatePromotion({required Promotion promotion}) {
     // TODO: implement updatePromotion
     throw UnimplementedError();
   }
