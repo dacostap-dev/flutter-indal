@@ -3,19 +3,24 @@ import 'package:indal/domain/repository/student_repository.dart';
 
 class StudentLocalImplementation extends StudentRepository {
   @override
-  Future<Student> addStudent() {
+  Future<Student> addStudent({
+    required String name,
+    required String email,
+    required String gender,
+    required String promotionId,
+  }) {
     // TODO: implement addStudent
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteStudent() {
+  Future<void> deleteStudent({required String id}) {
     // TODO: implement deleteStudent
     throw UnimplementedError();
   }
 
   @override
-  Future<List<Student>> getStudents() async {
+  Future<List<Student>> getStudents({Student? lastStudent}) async {
     await Future.delayed(const Duration(seconds: 1));
     return List.generate(
       15,
@@ -24,7 +29,9 @@ class StudentLocalImplementation extends StudentRepository {
         name: 'Student $index',
         email: 'un email',
         gender: 'H',
-        promocionId: index.toString(),
+        promotionId: index.toString(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
     );
   }
@@ -39,13 +46,15 @@ class StudentLocalImplementation extends StudentRepository {
         name: 'Student ${index + 1}',
         email: 'un email',
         gender: 'H',
-        promocionId: index.toString(),
+        promotionId: index.toString(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ),
     );
   }
 
   @override
-  Future<Student> updateStudent() {
+  Future<void> updateStudent({required Student student}) {
     // TODO: implement updateStudent
     throw UnimplementedError();
   }

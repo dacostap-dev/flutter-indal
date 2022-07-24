@@ -13,3 +13,42 @@ class StudentLoaded extends StudentState {
 }
 
 class StudentLoadFailed extends StudentState {}
+
+//BY PROMOTION
+
+class StudentByPromotionLoading extends StudentState {}
+
+class StudentByPromotionLoaded extends StudentState {
+  final List<Student> students;
+
+  StudentByPromotionLoaded(this.students);
+}
+
+class StudentByPromotionLoadFailed extends StudentState {}
+
+//ADD
+class StudentAddSuccess extends StudentState {}
+
+class StudentAddFailed extends StudentState {
+  final String message;
+
+  StudentAddFailed({required this.message});
+}
+
+//UPDATE
+class StudentUpdateSuccess extends StudentState {}
+
+class StudentUpdateFailed extends StudentState {
+  final String message;
+
+  StudentUpdateFailed({required this.message});
+}
+
+//DELETE
+class StudentDeleteSuccess extends StudentState {}
+
+class StudentDeleteFailed extends StudentState {
+  final String message;
+
+  StudentDeleteFailed({required this.message});
+}

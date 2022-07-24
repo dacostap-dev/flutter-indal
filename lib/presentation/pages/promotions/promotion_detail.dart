@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
 
 import 'package:indal/presentation/notifiers/student/student_notifier.dart';
 
@@ -26,6 +27,7 @@ class PromotionDetailState extends ConsumerState<PromotionDetail> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(studentCubit.notifier).clearStudents();
       ref
           .read(studentCubit.notifier)
           .getStudentsByPromotion(widget.promotion.id);
@@ -34,6 +36,15 @@ class PromotionDetailState extends ConsumerState<PromotionDetail> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<StudentState>(studentCubit, (previous, next) {
+      if (next is StudentUpdateSuccess) {
+        ref.read(studentCubit.notifier).clearStudents();
+        ref
+            .read(studentCubit.notifier)
+            .getStudentsByPromotion(widget.promotion.id);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.promotion.name),
@@ -42,20 +53,15 @@ class PromotionDetailState extends ConsumerState<PromotionDetail> {
         builder: (context, ref, widget) {
           final state = ref.watch(studentCubit);
 
-          if (state is StudentLoadFailed) {
+          if (state is StudentByPromotionLoadFailed) {
             return const Center(child: Text('Error'));
           }
 
-          if (state is StudentLoading) {
-            return ListView.separated(
-              padding: const EdgeInsets.all(10),
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemCount: 12,
-              itemBuilder: (context, index) => const StudentSkeleton(),
-            );
-          }
+          if (state is StudentByPromotionLoaded) {
+            if (state.students.isEmpty) {
+              return const Center(child: Text('No hay alumnos'));
+            }
 
-          if (state is StudentLoaded) {
             return ListView.separated(
               padding: const EdgeInsets.all(10),
               separatorBuilder: (context, index) => const SizedBox(height: 10),
@@ -66,7 +72,12 @@ class PromotionDetailState extends ConsumerState<PromotionDetail> {
             );
           }
 
-          return const SizedBox.shrink();
+          return ListView.separated(
+            padding: const EdgeInsets.all(10),
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemCount: 12,
+            itemBuilder: (context, index) => const StudentSkeleton(),
+          );
         },
       ),
     );
