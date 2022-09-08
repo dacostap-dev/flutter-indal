@@ -30,25 +30,33 @@ class StudentDetailState extends ConsumerState<StudentDetail> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<ModulState>(modulCubit, (previous, next) {
+      if (next is ModulDeleteSuccess) {
+        ref.read(modulCubit.notifier).getModulsByStudent(widget.student.id);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.student.name),
+        title: Text('${widget.student.name} (Módulos)'),
       ),
       body: Consumer(
         builder: (context, ref, widget) {
-          final state = ref.watch(modulCubit);
+          // final state = ref.watch(modulCubit);
+
+          final state = ref.watch(modulCubit.select((value) => value));
+
+          /*   final ModulState state = ref.watch(modulCubit.select((p) {
+            if (p is ModulLoadFailed || p is ModulLoaded) {
+              return p;
+            }
+            return p;
+          })); */
+
+          print(state.toString());
 
           if (state is ModulLoadFailed) {
             return const Center(child: Text('Error'));
-          }
-
-          if (state is ModulLoading) {
-            return ListView.separated(
-              padding: const EdgeInsets.all(10),
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemCount: 12,
-              itemBuilder: (context, index) => const ModulSkeleton(),
-            );
           }
 
           if (state is ModulLoaded) {
@@ -66,14 +74,19 @@ class StudentDetailState extends ConsumerState<StudentDetail> {
             );
           }
 
-          return const SizedBox.shrink();
+          return ListView.separated(
+            padding: const EdgeInsets.all(10),
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemCount: 12,
+            itemBuilder: (context, index) => const ModulSkeleton(),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
             context: context,
-            builder: (_) => const CreateModul(),
+            builder: (_) => CreateModul(studentId: widget.student.id),
           );
         },
         child: const Icon(Icons.add),
@@ -83,8 +96,11 @@ class StudentDetailState extends ConsumerState<StudentDetail> {
 }
 
 class CreateModul extends ConsumerStatefulWidget {
+  final String studentId;
+
   const CreateModul({
     Key? key,
+    required this.studentId,
   }) : super(key: key);
 
   @override
@@ -175,7 +191,7 @@ class CreateModulState extends ConsumerState<CreateModul> {
             if (_formKey.currentState!.validate()) {
               ref.read(modulCubit.notifier).addModul(
                     name: _nameController.text,
-                    studentId: 'studentId',
+                    studentId: widget.studentId,
                     informe: _informeController.text,
                     memorandum: _memorandumController.text,
                     solicitud: _solicitudController.text,

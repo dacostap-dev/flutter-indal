@@ -1,9 +1,24 @@
 import 'package:indal/domain/models/Modul.dart';
-import 'package:indal/domain/models/Student.dart';
+
 
 abstract class ModulRepository {
   Future<List<Modul>> getModulsByStudent(String studentId);
-  Future<Modul> addStudent();
-  Future<Modul> updateModul();
-  Future<void> deleteModul();
+
+  Future<Modul> addModul({
+    required String name,
+    required String informe,
+    required String memorandum,
+    required String solicitud,
+    required String studentId,
+  });
+
+  Future<void> updateModul({
+    required String modulId,
+    required String name,
+    required String informe,
+    required String memorandum,
+    required String solicitud,
+  });
+
+  Future<void> deleteModul({required String modulId});
 }

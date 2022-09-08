@@ -15,15 +15,18 @@ class ModulNotifier extends StateNotifier<ModulState> {
   final ModulRepository _modulRepository;
   ModulNotifier(this._modulRepository) : super(ModulIntitial());
 
+  List<Modul> moduls = [];
+
   void getModulsByStudent(String studentId) {
     state = ModulLoading();
 
-    _modulRepository
-        .getModulsByStudent(studentId)
-        .then(
-          (res) => state = ModulLoaded(res),
-        )
-        .catchError((e) {
+    _modulRepository.getModulsByStudent(studentId).then(
+      (res) {
+        moduls = res;
+        state = ModulLoaded(res);
+      },
+    ).catchError((e) {
+      print(e);
       state = ModulLoadFailed();
     });
   }
@@ -36,20 +39,71 @@ class ModulNotifier extends StateNotifier<ModulState> {
     required String solicitud,
   }) {
     print('addPromotion');
-    final currentState = state;
 
-    if (currentState is ModulLoaded) {
-      state = ModulLoaded([
-        ...currentState.moduls,
-        Modul(
-          id: 'id',
+    _modulRepository
+        .addModul(
+      name: name,
+      informe: informe,
+      memorandum: memorandum,
+      solicitud: solicitud,
+      studentId: studentId,
+    )
+        .then(
+      (value) {
+        moduls.insertAll(0, [value]);
+        state = ModulLoaded(moduls);
+      },
+    ).catchError((e) {
+      print(e);
+      state = ModulAddFailed(message: e.toString());
+    });
+  }
+
+  void updateModul({
+    required String modulId,
+    required String name,
+    required String informe,
+    required String memorandum,
+    required String solicitud,
+  }) {
+    print('updateModul');
+
+    _modulRepository
+        .updateModul(
+      modulId: modulId,
+      name: name,
+      informe: informe,
+      memorandum: memorandum,
+      solicitud: solicitud,
+    )
+        .then(
+      (value) {
+      /*   final modul = moduls.where((element) => element.id == modulId).first;
+
+        final modulEdited = modul.copyWith(
           name: name,
-          studentId: studentId,
           informe: informe,
           memorandum: memorandum,
           solicitud: solicitud,
-        ),
-      ]);
-    }
+        ); */
+
+        state = ModulUpdateSuccess();
+      },
+    ).catchError((e) {
+      print(e);
+      state = ModulUpdateFailed(message: e.toString());
+    });
+  }
+
+  void deleteModul({
+    required String modulId,
+  }) {
+    _modulRepository.deleteModul(modulId: modulId).then((value) {
+      moduls.removeWhere((element) => element.id == modulId);
+      state = ModulDeleteSuccess();
+      state = ModulLoaded(moduls);
+    }).catchError((e) {
+      state = ModulDeleteFailed(message: e.toString());
+    });
   }
 }
