@@ -121,7 +121,7 @@ class StudentsPageState extends ConsumerState<StudentsPage> {
                 itemBuilder: (context, index) => StudentItem(
                     student: state.students[index],
                     onTap: () {
-                      context.goNamed('student-detail', params: {
+                      context.pushNamed('student-detail', params: {
                         'studentId': state.students[index].id,
                       });
                     }),

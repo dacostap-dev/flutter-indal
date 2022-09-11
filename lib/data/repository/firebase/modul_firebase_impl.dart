@@ -47,7 +47,6 @@ class ModulFiresbaseImplementation extends ModulRepository {
         .orderBy('created_at', descending: true)
         .get()
         .then((snapshot) {
-      print(snapshot.docs[0].data());
       return snapshot.docs.map((doc) => doc.data()).toList();
     }).catchError((e) {
       throw Exception(e);

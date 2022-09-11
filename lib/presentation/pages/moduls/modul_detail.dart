@@ -42,7 +42,7 @@ class ModulDetailState extends ConsumerState<ModulDetail> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<ModulState>(modulCubit, (previous, next) {
+/*     ref.listen<ModulState>(modulCubit, (previous, next) {
       if (next is ModulDeleteSuccess) {
         Navigator.pop(context);
       }
@@ -52,7 +52,7 @@ class ModulDetailState extends ConsumerState<ModulDetail> {
           SnackBar(content: Text(next.message)),
         );
       }
-    });
+    }); */
 
     return Scaffold(
       appBar: AppBar(
@@ -138,6 +138,7 @@ class ModulDetailState extends ConsumerState<ModulDetail> {
                               solicitud: _solicitudController.text,
                             );
 
+                        //context pop vuelve al inicio porq no esta en definido en routes ModulDetail
                         Navigator.pop(context);
                       }
                     },
@@ -149,6 +150,7 @@ class ModulDetailState extends ConsumerState<ModulDetail> {
                           .read(modulCubit.notifier)
                           .deleteModul(modulId: widget.modul.id);
 
+                      //context pop vuelve al inicio porq no esta en definido en routes ModulDetail
                       Navigator.pop(context);
                     },
                     child: const Text('Eliminar'),

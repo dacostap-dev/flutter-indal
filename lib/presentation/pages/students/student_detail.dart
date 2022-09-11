@@ -30,9 +30,12 @@ class StudentDetailState extends ConsumerState<StudentDetail> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<ModulState>(modulCubit, (previous, next) {
-      if (next is ModulDeleteSuccess) {
-        ref.read(modulCubit.notifier).getModulsByStudent(widget.student.id);
+    ref.listen<String?>(errorProvider, (previous, next) {
+      print('listen');
+      if (next != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next)),
+        );
       }
     });
 
@@ -42,43 +45,40 @@ class StudentDetailState extends ConsumerState<StudentDetail> {
       ),
       body: Consumer(
         builder: (context, ref, widget) {
-          // final state = ref.watch(modulCubit);
-
-          final state = ref.watch(modulCubit.select((value) => value));
-
-          /*   final ModulState state = ref.watch(modulCubit.select((p) {
-            if (p is ModulLoadFailed || p is ModulLoaded) {
-              return p;
-            }
-            return p;
-          })); */
+          final state = ref.watch(modulCubit);
 
           print(state.toString());
 
-          if (state is ModulLoadFailed) {
-            return const Center(child: Text('Error'));
-          }
+          return state.when(
+            data: (data) {
+              if (data.isEmpty) {
+                return const Center(child: Text('No tiene Modulos'));
+              }
 
-          if (state is ModulLoaded) {
-            return GridView.builder(
+              return GridView.builder(
+                padding: const EdgeInsets.all(10),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                ),
+                itemCount: data.length,
+                itemBuilder: (context, index) => ModulItem(
+                  modul: data[index],
+                ),
+              );
+            },
+            error: (err, st) => const Center(child: Text('Error')),
+            loading: () => GridView.builder(
               padding: const EdgeInsets.all(10),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
               ),
-              itemCount: state.moduls.length,
-              itemBuilder: (context, index) => ModulItem(
-                modul: state.moduls[index],
-              ),
-            );
-          }
-
-          return ListView.separated(
-            padding: const EdgeInsets.all(10),
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemCount: 12,
-            itemBuilder: (context, index) => const ModulSkeleton(),
+              itemCount: 6,
+              itemBuilder: (context, index) => const ModulSkeleton(),
+            ),
           );
         },
       ),

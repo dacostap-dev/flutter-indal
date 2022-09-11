@@ -60,59 +60,16 @@ class ModulSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SkeletonAnimation(
-          shimmerColor: Colors.grey.shade200,
+    return SkeletonAnimation(
+      shimmerColor: Colors.grey.shade200,
+      borderRadius: BorderRadius.circular(20),
+      shimmerDuration: 1000,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
           borderRadius: BorderRadius.circular(20),
-          shimmerDuration: 1000,
-          child: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-            ),
-          ),
         ),
-        Expanded(
-          flex: 2,
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SkeletonAnimation(
-                  shimmerColor: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(20),
-                  shimmerDuration: 1000,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SkeletonAnimation(
-                  shimmerColor: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(50),
-                  shimmerDuration: 1000,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

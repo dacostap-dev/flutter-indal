@@ -5,29 +5,37 @@ import 'package:indal/domain/repository/modul_repository.dart';
 import 'package:indal/providers/dependencies_provider.dart';
 part 'modul_state.dart';
 
-final modulCubit = StateNotifierProvider<ModulNotifier, ModulState>((ref) {
-  //O pasar directamente el ref para que busque los repositorios que necesita
+final errorProvider = StateProvider<String?>((ref) => null);
 
-  return ModulNotifier(ref.read(modulRepository));
-});
+final modulCubit =
+    StateNotifierProvider<ModulNotifier, AsyncValue<List<Modul>>>(
+  (ref) => ModulNotifier(ref.read(modulRepository), ref),
+);
 
-class ModulNotifier extends StateNotifier<ModulState> {
+class ModulNotifier extends StateNotifier<AsyncValue<List<Modul>>> {
   final ModulRepository _modulRepository;
-  ModulNotifier(this._modulRepository) : super(ModulIntitial());
+  final Ref ref;
 
-  List<Modul> moduls = [];
+  ModulNotifier(
+    this._modulRepository,
+    this.ref,
+  ) : super(const AsyncValue.loading());
+
+  //List<Modul> moduls = [];
 
   void getModulsByStudent(String studentId) {
-    state = ModulLoading();
+    state = const AsyncValue.loading();
 
     _modulRepository.getModulsByStudent(studentId).then(
       (res) {
-        moduls = res;
-        state = ModulLoaded(res);
+        //moduls = res;
+
+        state = AsyncValue.data(res);
       },
     ).catchError((e) {
       print(e);
-      state = ModulLoadFailed();
+      ref.read(errorProvider.notifier).state = 'Algo salio Mal';
+      state = AsyncValue.error(e);
     });
   }
 
@@ -50,12 +58,16 @@ class ModulNotifier extends StateNotifier<ModulState> {
     )
         .then(
       (value) {
-        moduls.insertAll(0, [value]);
-        state = ModulLoaded(moduls);
+        //    moduls.insertAll(0, [value]);
+
+        state.whenData(
+            (items) => state = AsyncValue.data(items..insertAll(0, [value])));
       },
     ).catchError((e) {
       print(e);
-      state = ModulAddFailed(message: e.toString());
+
+      ref.read(errorProvider.notifier).state = 'Algo salio Mal';
+      state = AsyncValue.error(e);
     });
   }
 
@@ -78,7 +90,24 @@ class ModulNotifier extends StateNotifier<ModulState> {
     )
         .then(
       (value) {
-      /*   final modul = moduls.where((element) => element.id == modulId).first;
+        state.whenData((items) {
+          state = AsyncValue.data([
+            for (final item in items)
+              if (item.id == modulId)
+                item.copyWith(
+                  id: modulId,
+                  name: name,
+                  informe: informe,
+                  memorandum: memorandum,
+                  solicitud: solicitud,
+                  studentId: 'studentId',
+                  updatedAt: DateTime.now(),
+                )
+              else
+                item
+          ]);
+        });
+        /*   final modul = moduls.where((element) => element.id == modulId).first;
 
         final modulEdited = modul.copyWith(
           name: name,
@@ -86,12 +115,11 @@ class ModulNotifier extends StateNotifier<ModulState> {
           memorandum: memorandum,
           solicitud: solicitud,
         ); */
-
-        state = ModulUpdateSuccess();
       },
     ).catchError((e) {
       print(e);
-      state = ModulUpdateFailed(message: e.toString());
+      ref.read(errorProvider.notifier).state = 'Algo salio Mal';
+      state = AsyncValue.error(e);
     });
   }
 
@@ -99,11 +127,11 @@ class ModulNotifier extends StateNotifier<ModulState> {
     required String modulId,
   }) {
     _modulRepository.deleteModul(modulId: modulId).then((value) {
-      moduls.removeWhere((element) => element.id == modulId);
-      state = ModulDeleteSuccess();
-      state = ModulLoaded(moduls);
+      state.whenData((items) => state =
+          AsyncValue.data(items..removeWhere((item) => item.id == modulId)));
     }).catchError((e) {
-      state = ModulDeleteFailed(message: e.toString());
+      ref.read(errorProvider.notifier).state = 'Algo salio Mal';
+      state = AsyncValue.error(e);
     });
   }
 }
