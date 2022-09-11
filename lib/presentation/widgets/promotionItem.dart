@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:indal/domain/models/Promotion.dart';
 import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
 import 'package:intl/intl.dart';
@@ -22,11 +23,14 @@ class PromotionItem extends ConsumerWidget {
       onDismissed: (direction) =>
           ref.read(promotionCubit.notifier).deletePromotion(promotion),
       child: ListTile(
-        onTap: () => Navigator.pushNamed(
-          context,
-          'promotion-detail',
-          arguments: promotion,
-        ),
+        onTap: () => {
+          context.goNamed(
+            'promotion-detail',
+            params: {
+              'promotionId': promotion.id,
+            },
+          )
+        },
         title: Text(promotion.name),
         subtitle: Text(dateFormat.format(promotion.createdAt)),
         leading: const Icon(Icons.school),

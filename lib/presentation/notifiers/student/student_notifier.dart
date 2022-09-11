@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:indal/data/repository/firebase/students_firebase_impl.dart';
 import 'package:indal/domain/models/Student.dart';
 import 'package:indal/domain/repository/student_repository.dart';
 import 'package:indal/providers/dependencies_provider.dart';
@@ -25,6 +24,8 @@ class StudentNotifier extends StateNotifier<StudentState> {
 
   final List<Student> _students = [];
   List<Student> studentsByPromotion = [];
+
+  List<Student> get cachedStudents => _students;
 
   void clearStudents() {
     _students.clear();

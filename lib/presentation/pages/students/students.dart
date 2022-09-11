@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:indal/presentation/notifiers/student/student_notifier.dart';
 import 'package:indal/presentation/widgets/studentItem.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -112,8 +113,12 @@ class StudentsPageState extends ConsumerState<StudentsPage> {
                     const SizedBox(height: 10),
                 itemCount: state.students.length,
                 itemBuilder: (context, index) => StudentItem(
-                  student: state.students[index],
-                ),
+                    student: state.students[index],
+                    onTap: () {
+                      context.goNamed('student-detail', params: {
+                        'studentId': state.students[index].id,
+                      });
+                    }),
               ),
             );
           }

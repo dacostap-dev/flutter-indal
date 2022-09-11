@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:indal/presentation/pages/profile.dart';
 import 'package:indal/presentation/pages/promotions/promotions.dart';
 import 'package:indal/presentation/pages/students/students.dart';
 
@@ -16,6 +17,7 @@ class HomePageState extends ConsumerState<HomePage> {
   final _pages = const [
     PromotionPage(),
     StudentsPage(),
+    ProfileUser(),
   ];
 
   @override
@@ -37,6 +39,10 @@ class HomePageState extends ConsumerState<HomePage> {
           BottomNavigationBarItem(
             label: 'Alumnos',
             icon: Icon(Icons.people_alt_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: 'Perfil',
+            icon: Icon(Icons.person),
           )
         ],
       ),

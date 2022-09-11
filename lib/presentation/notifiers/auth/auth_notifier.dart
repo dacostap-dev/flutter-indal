@@ -22,6 +22,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void logout() async {
+    print('logout');
+    state = AuthLoading();
     await _authRepository.logout();
     state = AuthLogout();
   }

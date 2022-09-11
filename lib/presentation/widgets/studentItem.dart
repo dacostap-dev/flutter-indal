@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:indal/domain/models/Student.dart';
 import 'package:indal/presentation/notifiers/student/student_notifier.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
 class StudentItem extends ConsumerWidget {
   final Student student;
+  final VoidCallback onTap;
 
   const StudentItem({
     Key? key,
     required this.student,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -18,11 +21,7 @@ class StudentItem extends ConsumerWidget {
       key: ValueKey(student.id),
       onDismissed: (direction) => print(student.id),
       child: ListTile(
-        onTap: () => Navigator.pushNamed(
-          context,
-          'student-detail',
-          arguments: student,
-        ),
+        onTap: onTap,
         title: Text(student.name),
         subtitle: Text(student.email),
         leading: const Icon(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:indal/presentation/notifiers/student/student_notifier.dart';
 
@@ -50,7 +50,7 @@ class PromotionDetailState extends ConsumerState<PromotionDetail> {
         title: Text(widget.promotion.name),
       ),
       body: Consumer(
-        builder: (context, ref, widget) {
+        builder: (context, ref, _) {
           final state = ref.watch(studentCubit);
 
           if (state is StudentByPromotionLoadFailed) {
@@ -68,6 +68,12 @@ class PromotionDetailState extends ConsumerState<PromotionDetail> {
               itemCount: state.students.length,
               itemBuilder: (context, index) => StudentItem(
                 student: state.students[index],
+                onTap: () {
+                  context.goNamed('student-promotion-detail', params: {
+                    'promotionId': widget.promotion.id,
+                    'studentId': state.students[index].id,
+                  });
+                },
               ),
             );
           }
