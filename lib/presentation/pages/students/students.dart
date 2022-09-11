@@ -27,6 +27,12 @@ class StudentsPageState extends ConsumerState<StudentsPage> {
   }
 
   @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     ref.listen<StudentState>(studentCubit, (previous, next) {
       if (next is StudentLoaded) {
@@ -158,6 +164,15 @@ class CreateStudentState extends ConsumerState<CreateStudent> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _genderController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _genderController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

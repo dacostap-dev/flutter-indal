@@ -178,6 +178,13 @@ class UpdatePromotionDialogState extends ConsumerState<UpdatePromotionDialog> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: const Text('Editar Promoción'),

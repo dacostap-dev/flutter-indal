@@ -33,6 +33,12 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
   }
 
   @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     ref.listen<PromotionState>(promotionCubit, (previous, next) {
       if (next is PromotionLoaded) {
@@ -162,6 +168,12 @@ class SearchPromotionState extends ConsumerState<SearchPromotion> {
   Timer? _debounce;
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -199,6 +211,12 @@ class CreatePromotion extends ConsumerStatefulWidget {
 class CreatePromotionState extends ConsumerState<CreatePromotion> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -115,6 +115,15 @@ class CreateModulState extends ConsumerState<CreateModul> {
   final _solicitudController = TextEditingController();
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _informeController.dispose();
+    _memorandumController.dispose();
+    _solicitudController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SimpleDialog(
       contentPadding: const EdgeInsets.all(20),

@@ -32,6 +32,15 @@ class ModulDetailState extends ConsumerState<ModulDetail> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _informeController.dispose();
+    _memorandumController.dispose();
+    _solicitudController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     ref.listen<ModulState>(modulCubit, (previous, next) {
       if (next is ModulDeleteSuccess) {
