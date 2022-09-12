@@ -90,16 +90,17 @@ final routerProvider = Provider<GoRouter>((ref) {
 
                   //TODO: SI SE REFRESCA EL NAVEGADOR PIERDO EL STATE Y NO ENCUENTRA EL STUDENT
 
-                  final studentsByPromotion =
-                      ref.read(studentCubit.notifier).studentsByPromotion;
+                  final studentsByPromotion = ref.read(studentCubit);
 
-                  print(studentsByPromotion);
+                  final student = studentsByPromotion.whenData((items) {
+                    return items
+                        .where((student) => student.id == studentId)
+                        .first;
+                  });
 
-                  final student = studentsByPromotion
-                      .where((student) => student.id == studentId)
-                      .first;
+                  // print(studentsByPromotion);
 
-                  return StudentDetail(student: student);
+                  return StudentDetail(student: student.value!);
                 },
               ),
             ],
@@ -116,16 +117,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 
               //TODO: SI SE REFRESCA EL NAVEGADOR PIERDO EL STATE Y NO ENCUENTRA EL STUDENT
 
-              final cachedStudents =
-                  ref.read(studentCubit.notifier).cachedStudents;
+              final studentsByPromotion = ref.read(studentCubit);
 
-              print(cachedStudents);
+              final student = studentsByPromotion.whenData((items) {
+                return items.where((student) => student.id == studentId).first;
+              });
 
-              final student = cachedStudents
-                  .where((student) => student.id == studentId)
-                  .first;
-
-              return StudentDetail(student: student);
+              return StudentDetail(student: student.value!);
             },
           ),
         ],

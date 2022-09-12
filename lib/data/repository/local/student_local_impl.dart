@@ -20,7 +20,8 @@ class StudentLocalImplementation extends StudentRepository {
   }
 
   @override
-  Future<List<Student>> getStudents({Student? lastStudent}) async {
+  Future<List<Student>> getStudents(
+      {String? promotionId, Student? lastStudent}) async {
     await Future.delayed(const Duration(seconds: 1));
     return List.generate(
       15,

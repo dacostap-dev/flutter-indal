@@ -50,13 +50,13 @@ class StudentFirebaseImplentation extends StudentRepository {
   }
 
   @override
-  Future<List<Student>> getStudents({Student? lastStudent}) async {
+  Future<List<Student>> getStudents({String? promotionId, Student? lastStudent}) async {
     final orderBy = ref.read(filterStudentProvider);
 
     print(lastStudent);
 
     return await studentsRef
-        //   .where('name', isGreaterThanOrEqualTo: search)
+        .where('promotion_id', isEqualTo: promotionId)
         .queryBy(orderBy, lastStudent)
         .limit(8)
         .get()

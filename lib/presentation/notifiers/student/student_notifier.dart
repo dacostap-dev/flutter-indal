@@ -12,15 +12,15 @@ enum StudentQuery {
 final filterStudentProvider = StateProvider((ref) => StudentQuery.name);
 
 final studentCubit =
-    StateNotifierProvider<StudentNotifier, StudentState>((ref) {
+    StateNotifierProvider<StudentNotifier, AsyncValue<List<Student>>>((ref) {
   //O pasar directamente el ref para que busque los repositorios que necesita
 
   return StudentNotifier(ref.read(studentRepository));
 });
 
-class StudentNotifier extends StateNotifier<StudentState> {
+class StudentNotifier extends StateNotifier<AsyncValue<List<Student>>> {
   final StudentRepository _studentRepository;
-  StudentNotifier(this._studentRepository) : super(StudentIntitial());
+  StudentNotifier(this._studentRepository) : super(const AsyncValue.loading());
 
   final List<Student> _students = [];
   List<Student> studentsByPromotion = [];
@@ -34,21 +34,34 @@ class StudentNotifier extends StateNotifier<StudentState> {
   void getStudents({
     int offset = 0,
     Student? lastStudent,
+    String? promotionId,
   }) {
     if (offset == 0) {
-      state = StudentLoading();
+      //  state = StudentLoading();
+      state = const AsyncValue.loading();
     }
 
-    _studentRepository.getStudents(lastStudent: lastStudent).then((res) {
-      _students.addAll(res);
-      state = StudentLoaded(_students);
+    _studentRepository
+        .getStudents(lastStudent: lastStudent, promotionId: promotionId)
+        .then((res) {
+      // _students.addAll(res);
+      //state = StudentLoaded(_students);
+
+      print(res.length);
+
+      if (lastStudent != null) {
+        state.whenData((items) => state = AsyncValue.data(items..addAll(res)));
+      } else {
+        state = AsyncValue.data(res);
+      }
     }).catchError((e) {
       print(e);
-      state = StudentLoadFailed();
+      state = AsyncValue.error(e);
+      // state = StudentLoadFailed();
     });
   }
 
-  void getStudentsByPromotion(String promotinId) {
+  /*  void getStudentsByPromotion(String promotinId) {
     print('getStudentsByPromotion');
 
     state = StudentByPromotionLoading();
@@ -61,7 +74,7 @@ class StudentNotifier extends StateNotifier<StudentState> {
     ).catchError((e) {
       state = StudentByPromotionLoadFailed();
     });
-  }
+  } */
 
   void addStudent({
     required String name,
@@ -80,13 +93,17 @@ class StudentNotifier extends StateNotifier<StudentState> {
     )
         .then(
       (value) {
-        //   state = PromotionAddSuccess();
+        /*       //   state = PromotionAddSuccess();
         _students.insertAll(0, [value]);
-        state = StudentLoaded(_students);
+        state = StudentLoaded(_students); */
+
+        state.whenData(
+            (items) => state = AsyncValue.data(items..insertAll(0, [value])));
       },
     ).catchError((e) {
       print(e);
-      state = StudentAddFailed(message: e.toString());
+      state = AsyncValue.error(e);
+      //  state = StudentAddFailed(message: e.toString());
     });
   }
 
@@ -97,12 +114,19 @@ class StudentNotifier extends StateNotifier<StudentState> {
 
     _studentRepository
         .updateStudent(
-          student: student,
-        )
-        .then((value) => state = StudentUpdateSuccess())
-        .catchError((e) {
+      student: student,
+    )
+        .then((value) {
+      state.whenData((items) {
+        state = AsyncValue.data([
+          for (final item in items)
+            if (item.id == student.id) student else item
+        ]);
+      });
+    }).catchError((e) {
       print(e);
-      state = StudentAddFailed(message: e.toString());
+      state = AsyncValue.error(e);
+      //  state = StudentAddFailed(message: e.toString());
     });
   }
 
@@ -111,12 +135,16 @@ class StudentNotifier extends StateNotifier<StudentState> {
 
     _studentRepository.deleteStudent(id: student.id).then(
       (value) {
-        _students.removeWhere((element) => element.id == student.id);
-        state = StudentLoaded(_students);
+        /*   _students.removeWhere((element) => element.id == student.id);
+        state = StudentLoaded(_students); */
+
+        state.whenData((items) => state = AsyncValue.data(
+            items..removeWhere((item) => item.id == student.id)));
       },
     ).catchError((e) {
       print(e);
-      state = StudentDeleteFailed(message: e.toString());
+      state = AsyncValue.error(e);
+      //state = StudentDeleteFailed(message: e.toString());
     });
   }
 }

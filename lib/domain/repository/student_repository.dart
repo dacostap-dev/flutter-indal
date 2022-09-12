@@ -1,7 +1,7 @@
 import 'package:indal/domain/models/Student.dart';
 
 abstract class StudentRepository {
-  Future<List<Student>> getStudents({Student? lastStudent});
+  Future<List<Student>> getStudents({String? promotionId, Student? lastStudent});
   Future<List<Student>> getStudentsByPromotion(String promotionId);
   Future<Student> addStudent({
     required String name,
