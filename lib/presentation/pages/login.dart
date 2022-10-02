@@ -27,6 +27,14 @@ class LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
 
+    ref.listen<AuthState>(authCubit, (previous, next) {
+      //null cuando esta en loading or error
+      if (next is AuthFailed) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(next.message)));
+      }
+    });
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
@@ -54,6 +62,9 @@ class LoginPageState extends ConsumerState<LoginPage> {
             TextFormField(
               keyboardType: TextInputType.emailAddress,
               controller: _emailController,
+              decoration: const InputDecoration(
+                hintText: 'Correo electrónico',
+              ),
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -61,7 +72,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
               controller: _passwordController,
               obscureText: hidePassword,
               decoration: InputDecoration(
-                label: const Text('Contraseña'),
+                hintText: 'Contraseña',
                 suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
@@ -75,8 +86,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 5),
-            Align(
+            const SizedBox(height: 15),
+            /*      Align(
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: () =>
@@ -89,7 +100,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
               ),
-            ),
+            ), */
             const SizedBox(height: 5),
             Consumer(
               builder: (context, ref, child) => ElevatedButton(
@@ -99,19 +110,25 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 onPressed: ref.watch(authCubit) is AuthLoading
                     ? null
                     : () {
-                        ref.watch(authCubit.notifier).login();
+                        if (_emailController.text.isEmpty ||
+                            _passwordController.text.isEmpty) return;
+
+                        ref.read(authCubit.notifier).loginWithEmailAndPassword(
+                              _emailController.text,
+                              _passwordController.text,
+                            );
                       },
                 child: const Text('INICIAR'),
               ),
             ),
             const SizedBox(height: 35),
             const Text(
-              '¿Aún no eres parte de Doctavio?',
+              '¿No tienes cuenta?',
               //style: TextStyle(),
             ),
             const SizedBox(height: 10),
             TextButton(
-              onPressed: () => Navigator.pushNamed(context, 'register'),
+              onPressed: () {},
               child: Text(
                 'Afíliate ahora',
                 style: TextStyle(

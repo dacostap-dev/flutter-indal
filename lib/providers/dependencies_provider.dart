@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:indal/data/repository/firebase/auth_firebase_impl.dart';
 import 'package:indal/data/repository/firebase/modul_firebase_impl.dart';
 import 'package:indal/data/repository/firebase/promotion_firebase_impl.dart';
 import 'package:indal/data/repository/firebase/students_firebase_impl.dart';
-import 'package:indal/data/repository/local/auth_local_impl.dart';
 
 import 'package:indal/domain/repository/auth_repository.dart';
 import 'package:indal/domain/repository/modul_repository.dart';
@@ -15,7 +15,7 @@ final firebaseProvider = Provider<FirebaseFirestore>(
 );
 
 final authRepository = Provider<AuthRepository>((ref) {
-  return AuthLocalImplementation();
+  return AuthFirebaseImplementation();
 });
 
 final promotionRepository = Provider<PromotionRepository>((ref) {

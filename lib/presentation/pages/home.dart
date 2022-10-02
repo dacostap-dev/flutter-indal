@@ -17,7 +17,7 @@ class HomePageState extends ConsumerState<HomePage> {
   final _pages = const [
     PromotionPage(),
     StudentsPage(),
-    ProfileUser(),
+    ProfilePage(),
   ];
 
   @override

@@ -22,7 +22,7 @@ class StudentsPageState extends ConsumerState<StudentsPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) { 
       ref.read(studentCubit.notifier).getStudents();
     });
   }

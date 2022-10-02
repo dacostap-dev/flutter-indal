@@ -1,5 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:indal/domain/models/auth_user.dart';
+
 abstract class AuthRepository {
-  Future<void> login();
+  Stream<AuthUser?> get onAuthStateChanged;
+
+  Future<UserCredential?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  );
+
+  Future<UserCredential?> createUserWithEmailAndPassword(
+    String email,
+    String password,
+  );
+
+
   Future<void> logout();
-  Future<void> register();
+
 }
