@@ -14,21 +14,22 @@ enum PromotionQuery {
 
 final filterProvider = StateProvider((ref) => PromotionQuery.name);
 
-final promotionListProvider = StateProvider<List<Promotion>>((ref) => []);
+//final promotionListProvider = StateProvider<List<Promotion>>((ref) => []);
 
 final promotionCubit =
-    StateNotifierProvider<PromotionNotifier, PromotionState>((ref) {
+    StateNotifierProvider<PromotionNotifier, AsyncValue<List<Promotion>>>(
+        (ref) {
   //O pasar directamente el ref para que busque los repositorios que necesita
 
   return PromotionNotifier(ref.read(promotionRepository), ref);
 });
 
-class PromotionNotifier extends StateNotifier<PromotionState> {
+class PromotionNotifier extends StateNotifier<AsyncValue<List<Promotion>>> {
   final PromotionRepository _promotionRepository;
   final Ref ref;
 
   PromotionNotifier(this._promotionRepository, this.ref)
-      : super(PromotionInitial());
+      : super(const AsyncValue.loading());
 
 /*   final List<Promotion> promotions = []; */
 
@@ -37,17 +38,22 @@ class PromotionNotifier extends StateNotifier<PromotionState> {
     Promotion? lastPromotion,
   }) {
     if (offset == 0) {
-      state = PromotionLoading();
+      //   state = PromotionLoading();
+      state = const AsyncValue.loading();
     }
 
     _promotionRepository
         .getPromotions(lastPromotion: lastPromotion)
         .then((res) {
-      ref.read(promotionListProvider).addAll(res);
-      state = PromotionLoaded(ref.read(promotionListProvider));
+      print(res.length);
+
+      if (lastPromotion != null) {
+        state.whenData((items) => state = AsyncValue.data(items..addAll(res)));
+      } else {
+        state = AsyncValue.data(res);
+      }
     }).catchError((e) {
-      print(e);
-      state = PromotionLoadFailed(message: e.toString());
+      state = AsyncValue.error(e);
     });
   }
 
@@ -57,12 +63,29 @@ class PromotionNotifier extends StateNotifier<PromotionState> {
     _promotionRepository.addPromotion(name: name).then(
       (value) {
         //   state = PromotionAddSuccess();
-        ref.read(promotionListProvider).insertAll(0, [value]);
-        state = PromotionLoaded(ref.read(promotionListProvider));
+
+        state.whenData(
+            (items) => state = AsyncValue.data(items..insertAll(0, [value])));
       },
     ).catchError((e) {
       print(e);
-      state = PromotionAddFailed(message: e.toString());
+      state = AsyncValue.error(e);
+    });
+  }
+
+  void updatePromotion(Promotion promotion) {
+    print('updatePromotion');
+
+    _promotionRepository.updatePromotion(promotion: promotion).then((value) {
+      state.whenData((items) {
+        state = AsyncValue.data([
+          for (final item in items)
+            if (item.id == promotion.id) promotion else item
+        ]);
+      });
+    }).catchError((e) {
+      print(e);
+      state = AsyncValue.error(e);
     });
   }
 
@@ -72,37 +95,13 @@ class PromotionNotifier extends StateNotifier<PromotionState> {
     _promotionRepository.deletePromotion(id: promotion.id).then(
       (value) {
         // state = PromotionDeleteSuccess();
-        ref
-            .read(promotionListProvider)
-            .removeWhere((element) => element.id == promotion.id);
-        state = PromotionLoaded(ref.read(promotionListProvider));
+        state.whenData((items) => state = AsyncValue.data(
+            items..removeWhere((item) => item.id == promotion.id)));
       },
     ).catchError((e) {
       print(e);
-      state = PromotionDeleteFailed(message: e.toString());
+      state = AsyncValue.error(e);
     });
   }
 
-  void updatePromotion(Promotion promotion) {
-    print('updatePromotion');
-
-    _promotionRepository
-        .updatePromotion(promotion: promotion)
-        .then((value) => state = PromotionUpdatedSuccess())
-        .catchError((e) {
-      print(e);
-      state = PromotionUpdateFailed(message: e.toString());
-    });
-  }
-
-  void getStudentsByPromotion(String id) {
-    state = PromotionLoading();
-
-    _promotionRepository
-        .getPromotions()
-        .then((res) => state = PromotionLoaded(res))
-        .catchError((e) {
-      state = PromotionLoadFailed(message: e.toString());
-    });
-  }
 }

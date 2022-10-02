@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:indal/domain/models/Promotion.dart';
 
 import 'package:indal/presentation/notifiers/promotion/promotion_notifier.dart';
 import 'package:indal/presentation/widgets/promotionItem.dart';
@@ -27,7 +28,7 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
     print('init');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(promotionListProvider.notifier).state = [];
+      //  ref.read(promotionListProvider.notifier).state = [];
       ref.read(promotionCubit.notifier).getPromotions();
     });
   }
@@ -40,16 +41,10 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<PromotionState>(promotionCubit, (previous, next) {
-      if (next is PromotionLoaded) {
+    ref.listen<AsyncValue<List<Promotion>>>(promotionCubit, (previous, next) {
+      //null cuando esta en loading or error
+      if (next.asData != null) {
         _refreshController.loadComplete();
-      }
-
-      if (next is PromotionAddSuccess ||
-          next is PromotionUpdatedSuccess ||
-          next is PromotionDeleteSuccess) {
-        ref.read(promotionListProvider.notifier).state = [];
-        ref.read(promotionCubit.notifier).getPromotions();
       }
     });
 
@@ -60,7 +55,7 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
           PopupMenuButton<PromotionQuery>(
               onSelected: (value) async {
                 ref.read(filterProvider.notifier).state = value;
-                ref.read(promotionListProvider.notifier).state = [];
+                //  ref.read(promotionListProvider.notifier).state = [];
 
                 ref.read(promotionCubit.notifier).getPromotions();
               },
@@ -83,59 +78,59 @@ class PromotionPageState extends ConsumerState<PromotionPage> {
         builder: (BuildContext context, WidgetRef ref, Widget? child) {
           final state = ref.watch(promotionCubit);
 
-          if (state is PromotionLoadFailed) {
-            return const Center(child: Text('Error'));
-          }
+          return state.when(
+            data: (data) {
+              if (data.isEmpty) {
+                return const Center(child: Text('No tiene promociones'));
+              }
 
-          if (state is PromotionLoaded) {
-            if (state.promotions.isEmpty) {
-              return const Center(child: Text('No hay promociones'));
-            }
-            return SmartRefresher(
-              enablePullUp: true,
-              enablePullDown: false,
-              footer: CustomFooter(
-                builder: (BuildContext context, LoadStatus? mode) {
-                  Widget body;
-                  if (mode == LoadStatus.loading) {
-                    body = const CupertinoActivityIndicator();
-                  } else if (mode == LoadStatus.failed) {
-                    body = const Text("Algo salió mal");
-                  } else if (mode == LoadStatus.canLoading) {
-                    body = const Text("Cargar más promociones");
-                  } else {
-                    body = const Text("No hay más promociones");
-                  }
-                  return SizedBox(
-                    height: 55.0,
-                    child: Center(child: body),
-                  );
-                },
-              ),
-              controller: _refreshController,
-              // onRefresh: _onRefresh,
-              onLoading: () {
-                ref.read(promotionCubit.notifier).getPromotions(
-                      offset: state.promotions.length,
-                      lastPromotion: state.promotions.last,
+              return SmartRefresher(
+                enablePullUp: true,
+                enablePullDown: false,
+                footer: CustomFooter(
+                  builder: (BuildContext context, LoadStatus? mode) {
+                    Widget body;
+                    if (mode == LoadStatus.loading) {
+                      body = const CupertinoActivityIndicator();
+                    } else if (mode == LoadStatus.failed) {
+                      body = const Text("Algo salió mal");
+                    } else if (mode == LoadStatus.canLoading) {
+                      body = const Text("Cargar más promociones");
+                    } else {
+                      body = const Text("No hay más promociones");
+                    }
+                    return SizedBox(
+                      height: 55.0,
+                      child: Center(child: body),
                     );
-              },
-              child: ListView.separated(
-                padding: const EdgeInsets.all(10),
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10),
-                itemCount: state.promotions.length,
-                itemBuilder: (context, index) => PromotionItem(
-                  promotion: state.promotions[index],
+                  },
                 ),
-              ),
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.all(10),
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemCount: 10,
-            itemBuilder: (context, index) => const PromotionSkeleton(),
+                controller: _refreshController,
+                // onRefresh: _onRefresh,
+                onLoading: () {
+                  ref.read(promotionCubit.notifier).getPromotions(
+                        offset: data.length,
+                        lastPromotion: data.last,
+                      );
+                },
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(10),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
+                  itemCount: data.length,
+                  itemBuilder: (context, index) => PromotionItem(
+                    promotion: data[index],
+                  ),
+                ),
+              );
+            },
+            error: (err, st) => const Center(child: Text('Error')),
+            loading: () => ListView.separated(
+              padding: const EdgeInsets.all(10),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemCount: 10,
+              itemBuilder: (context, index) => const PromotionSkeleton(),
+            ),
           );
         },
       ),

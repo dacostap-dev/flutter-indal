@@ -61,21 +61,6 @@ class StudentNotifier extends StateNotifier<AsyncValue<List<Student>>> {
     });
   }
 
-  /*  void getStudentsByPromotion(String promotinId) {
-    print('getStudentsByPromotion');
-
-    state = StudentByPromotionLoading();
-
-    _studentRepository.getStudentsByPromotion(promotinId).then(
-      (res) {
-        studentsByPromotion = res;
-        state = StudentByPromotionLoaded(studentsByPromotion);
-      },
-    ).catchError((e) {
-      state = StudentByPromotionLoadFailed();
-    });
-  } */
-
   void addStudent({
     required String name,
     required String email,

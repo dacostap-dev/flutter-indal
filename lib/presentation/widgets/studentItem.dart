@@ -17,65 +17,61 @@ class StudentItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Dismissible(
-      key: ValueKey(student.id),
-      onDismissed: (direction) => print(student.id),
-      child: ListTile(
-        onTap: onTap,
-        title: Text(student.name),
-        subtitle: Text(student.email),
-        leading: const Icon(
-          Icons.account_circle,
-          size: 32,
-        ),
-        trailing: SizedBox(
-          width: 100,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                constraints: const BoxConstraints(),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => UpdateStudentDialog(student: student),
-                  );
-                },
-                icon: const Icon(Icons.edit),
-              ),
-              IconButton(
-                constraints: const BoxConstraints(),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: const Text('Eliminar Promoción'),
-                      titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                      content: Text(
-                        '¿Estás seguro que quieres eliminar al alumno ${student.name}?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () => {
-                            ref
-                                .read(studentCubit.notifier)
-                                .deleteStudent(student),
-                            Navigator.pop(context)
-                          },
-                          child: const Text('Aceptar'),
-                        )
-                      ],
+    return ListTile(
+      onTap: onTap,
+      title: Text(student.name),
+      subtitle: Text(student.email),
+      leading: const Icon(
+        Icons.account_circle,
+        size: 32,
+      ),
+      trailing: SizedBox(
+        width: 100,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => UpdateStudentDialog(student: student),
+                );
+              },
+              icon: const Icon(Icons.edit),
+            ),
+            IconButton(
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Eliminar Promoción'),
+                    titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                    content: Text(
+                      '¿Estás seguro que quieres eliminar al alumno ${student.name}?',
                     ),
-                  );
-                },
-                icon: const Icon(Icons.delete),
-              ),
-            ],
-          ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancelar'),
+                      ),
+                      TextButton(
+                        onPressed: () => {
+                          ref
+                              .read(studentCubit.notifier)
+                              .deleteStudent(student),
+                          Navigator.pop(context)
+                        },
+                        child: const Text('Aceptar'),
+                      )
+                    ],
+                  ),
+                );
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          ],
         ),
       ),
     );

@@ -68,12 +68,20 @@ final routerProvider = Provider<GoRouter>((ref) {
 
               //TODO: SI SE REFRESCA EL NAVEGADOR PIERDO EL STATE Y NO ENCUENTRA LA PROMOCION
 
-              final promotion = ref
+              /*       final promotion = ref
                   .read(promotionListProvider)
                   .where((promotion) => promotion.id == promotionId)
-                  .first;
+                  .first;              
+              */
 
-              return PromotionDetail(promotion: promotion);
+              final promotions = ref.read(promotionCubit);
+              final promotion = promotions.whenData((items) {
+                return items
+                    .where((promotion) => promotion.id == promotionId)
+                    .first;
+              });
+
+              return PromotionDetail(promotion: promotion.value!);
             },
             routes: [
               GoRoute(
