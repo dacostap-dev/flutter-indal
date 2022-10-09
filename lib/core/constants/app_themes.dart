@@ -4,7 +4,8 @@ class AppThemes {
   AppThemes._();
 
   static final ligthTheme = ThemeData(
-    primarySwatch: Colors.red,
+    scaffoldBackgroundColor: Colors.white,
+    primarySwatch: Colors.amber,
     appBarTheme: const AppBarTheme(
       centerTitle: true,
     ),

@@ -47,10 +47,12 @@ class LoginPageState extends ConsumerState<LoginPage> {
           //  mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
-            const Placeholder(
-              fallbackHeight: 200,
+            Image.asset(
+              'assets/images/logo.png',
+              height: 150,
+              width: 150,
             ),
-            const SizedBox(height: 35),
+            const SizedBox(height: 30),
             Text(
               'Iniciar Sesión',
               style: Theme.of(context)
@@ -58,7 +60,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   .headlineSmall
                   ?.copyWith(fontSize: 20.5),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 35),
             TextFormField(
               keyboardType: TextInputType.emailAddress,
               controller: _emailController,
@@ -86,7 +88,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 35),
             /*      Align(
               alignment: Alignment.topRight,
               child: TextButton(
@@ -101,7 +103,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
             ), */
-            const SizedBox(height: 5),
+
             Consumer(
               builder: (context, ref, child) => ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -121,8 +123,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
                 child: const Text('INICIAR'),
               ),
             ),
-            const SizedBox(height: 35),
-            const Text(
+            const SizedBox(height: 45),
+            /*        const Text(
               '¿No tienes cuenta?',
               //style: TextStyle(),
             ),
@@ -136,7 +138,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   color: primaryColor,
                 ),
               ),
-            ),
+            ), */
             const Spacer()
           ],
         ),

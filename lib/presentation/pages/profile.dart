@@ -38,6 +38,7 @@ class ProfilePage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 50),
               CachedNetworkImage(
                 imageUrl: authUser.photo,
                 imageBuilder: (context, imageProvider) => CircleAvatar(
@@ -86,12 +87,12 @@ class ProfilePage extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              /*     const SizedBox(height: 20),
               _ProfileItem(
                 icon: Icons.settings_outlined,
                 label: 'Configuración',
                 onTap: () {},
-              ),
+              ), */
               const SizedBox(height: 15),
               _ProfileItem(
                 icon: Icons.logout_outlined,
