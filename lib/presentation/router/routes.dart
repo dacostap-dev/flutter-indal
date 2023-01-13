@@ -9,6 +9,7 @@ import 'package:indal/presentation/notifiers/student/student_notifier.dart';
 
 import 'package:indal/presentation/pages/home.dart';
 import 'package:indal/presentation/pages/login.dart';
+
 import 'package:indal/presentation/pages/promotions/promotion_detail.dart';
 import 'package:indal/presentation/pages/splash.dart';
 import 'package:indal/presentation/pages/students/student_detail.dart';
